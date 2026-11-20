@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer Time — Dhaka | Nafiz Bin Azad</title>
+<meta name="description" content="Dhaka prayer times with live next-prayer countdown, Hijri date and a sun-arc for today.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --emerald-950:#04241c; --emerald-900:#06382b; --emerald-800:#0a4a38; --emerald-700:#0f6b4f;
+    --emerald-500:#159a6c; --emerald-100:#d9efe5; --cream:#f7f3e8; --paper:#fffdf6;
+    --gold:#c9a227; --gold-light:#e8c766; --gold-soft:#f3e3a1; --ink:#17332a; --muted:#6b7f76;
+    --card-shadow:0 18px 40px rgba(4,36,28,.14); --radius:20px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:"Hind Siliguri",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.serif{font-family:"Playfair Display","Hind Siliguri",Georgia,serif}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes glow{0%,100%{filter:drop-shadow(0 0 4px rgba(232,199,102,.9))}50%{filter:drop-shadow(0 0 12px rgba(232,199,102,1))}}
+  .rise{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+  .d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.28s}.d4{animation-delay:.38s}.d5{animation-delay:.5s}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;overflow:hidden;color:#fff;text-align:center;
+    background:radial-gradient(900px 420px at 50% -10%,#147a58 0%,transparent 60%),
+               linear-gradient(165deg,var(--emerald-800) 0%,var(--emerald-900) 52%,var(--emerald-950) 100%);
+    padding:56px 20px 0}
+  .hero::before{content:"";position:absolute;inset:0;opacity:.10;pointer-events:none;
+    background:radial-gradient(circle at 18% 22%,var(--gold-light) 0 2px,transparent 3px),
+               radial-gradient(circle at 82% 16%,#fff 0 1.5px,transparent 2.5px),
+               radial-gradient(circle at 68% 34%,var(--gold-light) 0 1.5px,transparent 2.5px),
+               radial-gradient(circle at 30% 40%,#fff 0 1px,transparent 2px)}
+  .bismillah{font-size:1.7rem;color:var(--gold-soft);letter-spacing:.02em;position:relative}
+  .hero h1{font-size:clamp(2.4rem,6vw,4rem);line-height:1.08;margin:10px 0 6px;position:relative}
+  .hero h1 em{font-style:normal;color:var(--gold-light)}
+  .hero .sub{color:var(--emerald-100);max-width:560px;margin:0 auto;position:relative;font-size:1.02rem}
+  .date-pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px auto 8px;position:relative}
+  .pill{background:rgba(255,255,255,.10);border:1px solid rgba(232,199,102,.45);backdrop-filter:blur(6px);
+    padding:8px 16px;border-radius:999px;font-size:.92rem;color:#fff}
+  .pill strong{color:var(--gold-light);font-weight:600}
+  .skyline{display:block;width:100%;height:110px;margin-top:18px;position:relative}
+  @media(max-width:560px){.skyline{height:74px}}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:860px;margin:0 auto;padding:0 18px 10px}
+  .ramadan{display:none;margin:-14px auto 18px;position:relative;z-index:3;background:linear-gradient(90deg,#8a6d0b,var(--gold),#8a6d0b);
+    color:#231a00;border-radius:14px;padding:13px 18px;text-align:center;font-weight:600;box-shadow:var(--card-shadow)}
+  .ramadan.show{display:block}
+
+  .countdown-card{margin:-14px auto 22px;position:relative;z-index:2;background:var(--paper);border:1px solid #eadfbc;
+    border-top:4px solid var(--gold);border-radius:var(--radius);box-shadow:var(--card-shadow);padding:26px 22px;text-align:center}
+  .countdown-card .label{letter-spacing:.22em;text-transform:uppercase;font-size:.74rem;color:var(--emerald-700);font-weight:700}
+  .next-name{font-size:clamp(1.9rem,5vw,2.7rem);color:var(--emerald-900);margin:4px 0 0}
+  .next-name span{color:var(--gold);font-size:.62em;vertical-align:middle}
+  .next-time{color:var(--muted);font-size:1rem}
+  .countdown{font-family:"Playfair Display",Georgia,serif;font-variant-numeric:tabular-nums;font-weight:800;
+    font-size:clamp(2.6rem,9vw,4.2rem);color:var(--emerald-800);letter-spacing:.04em;line-height:1.15;margin-top:6px}
+  .countdown small{display:block;font-family:"Hind Siliguri",sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--paper);border:1px solid #e9e2cd;border-radius:var(--radius);box-shadow:0 10px 28px rgba(4,36,28,.08);padding:22px}
+  .card h2{font-size:1.3rem;color:var(--emerald-900);margin-bottom:4px}
+  .card .hint{color:var(--muted);font-size:.9rem;margin-bottom:14px}
+
+  /* ---------- Prayer rows ---------- */
+  .prayer-row{display:flex;align-items:center;gap:14px;padding:13px 14px;border-radius:14px;border:1px solid transparent;transition:background .3s,border-color .3s}
+  .prayer-row + .prayer-row{margin-top:6px}
+  .prayer-row:nth-child(odd){background:#f4f8f2}
+  .prayer-row .icon{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:var(--emerald-100);color:var(--emerald-800)}
+  .prayer-row .names{flex:1;min-width:0}
+  .prayer-row .en{font-weight:600;font-size:1.05rem;color:var(--emerald-950)}
+  .prayer-row .ar{color:var(--muted);font-size:.92rem}
+  .prayer-row .time{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:1.22rem;color:var(--emerald-900);font-variant-numeric:tabular-nums;text-align:right}
+  .badge{display:none;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-left:8px;vertical-align:middle}
+  .prayer-row.is-current{background:linear-gradient(90deg,#e6f3ea,#fdf6d8);border-color:var(--gold)}
+  .prayer-row.is-current .badge.badge-current{display:inline-block;background:var(--emerald-700);color:#fff}
+  .prayer-row.is-next{border-color:var(--emerald-500);background:#eef8f1}
+  .prayer-row.is-next .badge.badge-next{display:inline-block;background:var(--gold);color:#231a00}
+  .sunrise-row{margin-top:12px;border-top:1px dashed #d8cf9f;padding-top:12px}
+  .sunrise-row .icon{background:#fdf0c2;color:#8a6d0b}
+
+  /* ---------- Sun arc ---------- */
+  .sun-wrap{text-align:center}
+  .sun-wrap svg{width:100%;max-width:340px;height:auto}
+  #sunDot{animation:glow 3s ease-in-out infinite}
+  .sun-times{display:flex;justify-content:space-between;font-size:.88rem;color:var(--muted);margin-top:2px}
+  .sun-times strong{display:block;color:var(--emerald-900);font-size:.98rem}
+  .sun-progress-text{margin-top:12px;font-weight:600;color:var(--emerald-800)}
+  .note{margin-top:18px;background:#eef8f1;border:1px solid #cfe6d6;border-radius:14px;padding:14px 16px;font-size:.92rem;color:var(--emerald-900)}
+  footer{text-align:center;padding:34px 18px 40px;color:var(--muted);font-size:.92rem}
+  footer .orn{color:var(--gold);letter-spacing:.5em;margin-bottom:6px}
+  footer strong{color:var(--emerald-800)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="bismillah rise" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+  <h1 class="rise d1">Dhaka <em>Prayer Time</em></h1>
+  <p class="sub rise d2">Today&rsquo;s five daily prayers for Dhaka, Bangladesh — with the next prayer, a live countdown, the Hijri date and the sun&rsquo;s journey across the sky.</p>
+  <div class="date-pills rise d3">
+    <span class="pill">📍 <strong>Dhaka</strong>, Bangladesh</span>
+    <span class="pill" id="gregorianDate">Loading date…</span>
+    <span class="pill" id="hijriDate">Loading Hijri date…</span>
+  </div>
+  <!-- Mosque skyline silhouette -->
+  <svg class="skyline" viewBox="0 0 1200 110" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#021a13" d="M0,110 L0,78 L40,78 L40,62 L58,62 L58,78 L96,78 L96,58 C96,44 108,40 108,28 C108,40 120,44 120,58 L120,78 L168,78 L168,50 L176,50 L176,36 L186,20 L196,36 L196,50 L204,50 L204,78 L258,78 L258,66 L300,66 L300,44 C300,28 322,22 330,6 C338,22 360,28 360,44 L360,66 L404,66 L404,78 L452,78 L452,54 L462,54 L462,30 L474,30 L474,12 L480,4 L486,12 L486,30 L498,30 L498,54 L508,54 L508,78 L560,78 L560,60 C560,42 584,34 600,14 C616,34 640,42 640,60 L640,78 L692,78 L692,54 L702,54 L702,30 L714,30 L714,12 L720,4 L726,12 L726,30 L738,30 L738,54 L748,54 L748,78 L796,78 L796,66 L840,66 L840,44 C840,28 862,22 870,6 C878,22 900,28 900,44 L900,66 L944,66 L944,78 L996,78 L996,50 L1004,50 L1004,36 L1014,20 L1024,36 L1024,50 L1032,50 L1032,78 L1080,78 L1080,58 C1080,44 1092,40 1092,28 C1092,40 1104,44 1104,58 L1104,78 L1142,78 L1142,62 L1160,62 L1160,78 L1200,78 L1200,110 Z"/>
+    <circle cx="480" cy="52" r="3" fill="#e8c766"/><circle cx="720" cy="52" r="3" fill="#e8c766"/>
+    <circle cx="330" cy="62" r="2.5" fill="#e8c766"/><circle cx="870" cy="62" r="2.5" fill="#e8c766"/>
+    <rect x="592" y="52" width="16" height="22" rx="7" fill="#e8c766" opacity=".85"/>
+  </svg>
+</header>
+
+<main class="wrap">
+  <div class="ramadan rise" id="ramadanBanner" role="status">🌙 Ramadan Mubarak — Iftar at Maghrib time (<span id="ramadanIftar">—</span>). May your fasts and prayers be accepted.</div>
+
+  <section class="countdown-card rise d2" aria-live="off">
+    <div class="label">Next Prayer</div>
+    <h2 class="next-name" id="nextName">—</h2>
+    <div class="next-time" id="nextTime">at —</div>
+    <div class="countdown"><span id="countdown">--:--:--</span><small>remaining</small></div>
+  </section>
+
+  <div class="grid">
+    <section class="card rise d3">
+      <h2>Today&rsquo;s Prayers</h2>
+      <p class="hint">Times for Dhaka, interpolated day-by-day from the monthly timetable.</p>
+      <div id="prayerList"></div>
+      <div class="prayer-row sunrise-row" id="sunriseRow">
+        <div class="icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M5.6 5.6l2.1 2.1M18.4 5.6l-2.1 2.1"/><path d="M4 18a8 8 0 0 1 16 0"/><path d="M2 21h20"/></svg>
+        </div>
+        <div class="names"><div class="en">Sunrise</div><div class="ar">Shurooq · الشروق</div></div>
+        <div class="time" id="sunriseTime">—</div>
+      </div>
+    </section>
+
+    <section class="card rise d4">
+      <h2>The Sun&rsquo;s Journey</h2>
+      <p class="hint">From Fajr to Maghrib — where the day stands right now.</p>
+      <div class="sun-wrap">
+        <svg viewBox="0 0 340 190" role="img" aria-label="Sun arc progress from Fajr to Maghrib">
+          <defs>
+            <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#0f6b4f"/><stop offset=".55" stop-color="#c9a227"/><stop offset="1" stop-color="#b3541e"/>
+            </linearGradient>
+          </defs>
+          <path d="M30,165 A140,140 0 0 1 310,165" fill="none" stroke="#e7dfc4" stroke-width="10" stroke-linecap="round"/>
+          <path id="sunArcProgress" d="M30,165 A140,140 0 0 1 310,165" fill="none" stroke="url(#arcGrad)" stroke-width="10" stroke-linecap="round"/>
+          <line x1="14" y1="165" x2="326" y2="165" stroke="#d8cf9f" stroke-width="2" stroke-dasharray="4 5"/>
+          <g id="sunDot">
+            <circle r="17" fill="#e8c766" opacity=".35"/>
+            <circle r="10" fill="#e8c766" stroke="#c9a227" stroke-width="2"/>
+          </g>
+          <text x="30" y="188" text-anchor="middle" font-size="12" fill="#6b7f76">Fajr</text>
+          <text x="310" y="188" text-anchor="middle" font-size="12" fill="#6b7f76">Maghrib</text>
+        </svg>
+        <div class="sun-times">
+          <span>Fajr<strong id="arcFajr">—</strong></span>
+          <span>Maghrib<strong id="arcMaghrib">—</strong></span>
+        </div>
+        <p class="sun-progress-text" id="sunProgressText">—</p>
+      </div>
+      <div class="note">🕌 Arrive a few minutes early — the times above mark the start of each prayer. Jumu&rsquo;ah replaces Dhuhr on Fridays. Timetable follows the standard published Dhaka schedule; allow ±2 minutes.</div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="orn">✦ ✦ ✦</div>
+  Built by <strong>Nafiz Bin Azad</strong> · Prayer Time — Dhaka<br>
+  <span style="font-size:.84rem">A static page — no accounts, no keys, works offline from the built-in timetable.</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* Monthly anchors for Dhaka — times on the 1st of each month, "H:MM" 24h.
+     Standard published Dhaka schedule. Index 0 = January. */
+  var ANCHORS = [
+    {fajr:"5:22", sunrise:"6:41", dhuhr:"12:00", asr:"15:44", maghrib:"17:25", isha:"18:44"}, // Jan
+    {fajr:"5:17", sunrise:"6:36", dhuhr:"12:12", asr:"16:00", maghrib:"17:47", isha:"19:03"}, // Feb
+    {fajr:"4:57", sunrise:"6:14", dhuhr:"12:11", asr:"16:08", maghrib:"18:03", isha:"19:17"}, // Mar
+    {fajr:"4:28", sunrise:"5:44", dhuhr:"12:01", asr:"16:18", maghrib:"18:18", isha:"19:32"}, // Apr
+    {fajr:"4:02", sunrise:"5:22", dhuhr:"11:55", asr:"16:22", maghrib:"18:31", isha:"19:53"}, // May
+    {fajr:"3:44", sunrise:"5:11", dhuhr:"11:57", asr:"16:35", maghrib:"18:44", isha:"20:10"}, // Jun
+    {fajr:"3:48", sunrise:"5:15", dhuhr:"12:03", asr:"16:42", maghrib:"18:51", isha:"20:16"}, // Jul
+    {fajr:"4:07", sunrise:"5:30", dhuhr:"12:05", asr:"16:42", maghrib:"18:40", isha:"20:00"}, // Aug
+    {fajr:"4:24", sunrise:"5:43", dhuhr:"11:58", asr:"16:28", maghrib:"18:12", isha:"19:29"}, // Sep
+    {fajr:"4:38", sunrise:"5:54", dhuhr:"11:47", asr:"16:02", maghrib:"17:41", isha:"18:55"}, // Oct
+    {fajr:"4:52", sunrise:"6:10", dhuhr:"11:42", asr:"15:43", maghrib:"17:16", isha:"18:33"}, // Nov
+    {fajr:"5:08", sunrise:"6:29", dhuhr:"11:50", asr:"15:35", maghrib:"17:11", isha:"18:31"}  // Dec
+  ];
+
+  var PRAYERS = [
+    {key:"fajr",    en:"Fajr",    ar:"الفجر",   icon:'<circle cx="12" cy="14" r="4"/><path d="M12 6v2M4 18h16M2 21h20"/>'},
+    {key:"dhuhr",   en:"Dhuhr",   ar:"الظهر",   icon:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>'},
+    {key:"asr",     en:"Asr",     ar:"العصر",   icon:'<circle cx="12" cy="13" r="4"/><path d="M12 5V3M5.5 7.5L4 6M18.5 7.5L20 6M3 20h18"/>'},
+    {key:"maghrib", en:"Maghrib", ar:"المغرب",  icon:'<path d="M6 16a6 6 0 0 1 12 0"/><path d="M12 6V3M4 20h16M2 16h3M19 16h3"/>'},
+    {key:"isha",    en:"Isha",    ar:"العشاء",  icon:'<path d="M20 13.5A8 8 0 1 1 10.5 4a6.5 6.5 0 0 0 9.5 9.5Z"/><path d="M17 4l.6 1.6L19 6l-1.4.5L17 8l-.6-1.5L15 6l1.4-.4Z"/>'}
+  ];
+
+  function toMin(s){ var p=s.split(":"); return parseInt(p[0],10)*60 + parseInt(p[1],10); }
+  function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+
+  /* Interpolated times (minutes after midnight) for a given Date:
+     linear blend from this month's 1st-of-month anchor toward next month's. */
+  function timesFor(date){
+    var m = date.getMonth(), dim = daysInMonth(date.getFullYear(), m);
+    var t = (date.getDate() - 1) / dim;
+    var cur = ANCHORS[m], nxt = ANCHORS[(m+1) % 12], out = {};
+    for (var k in cur){
+      var a = toMin(cur[k]), b = toMin(nxt[k]);
+      if (m === 11 && b < a) b += 24*60; /* Dec -> Jan wrap safety (not triggered by this table) */
+      out[k] = Math.round(a + (b - a) * t);
+    }
+    return out;
+  }
+
+  function fmt(mins){
+    mins = ((mins % 1440) + 1440) % 1440;
+    var h = Math.floor(mins/60), mm = mins % 60, ap = h >= 12 ? "PM" : "AM";
+    var h12 = h % 12; if (h12 === 0) h12 = 12;
+    return h12 + ":" + (mm < 10 ? "0" : "") + mm + " " + ap;
+  }
+  function atTime(date, mins){
+    var d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setMinutes(mins); return d;
+  }
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+
+  var listEl = document.getElementById("prayerList");
+  var rowEls = {};
+  PRAYERS.forEach(function(p){
+    var row = document.createElement("div");
+    row.className = "prayer-row"; row.id = "row-" + p.key;
+    row.innerHTML =
+      '<div class="icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + p.icon + '</svg></div>' +
+      '<div class="names"><div class="en">' + p.en +
+        '<span class="badge badge-current">Current</span><span class="badge badge-next">Next</span></div>' +
+        '<div class="ar" lang="ar">' + p.ar + '</div></div>' +
+      '<div class="time" id="time-' + p.key + '">—</div>';
+    listEl.appendChild(row); rowEls[p.key] = row;
+  });
+
+  var today = new Date();
+  var times = timesFor(today);
+  var tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  var tomorrowTimes = timesFor(tomorrow);
+
+  PRAYERS.forEach(function(p){ document.getElementById("time-" + p.key).textContent = fmt(times[p.key]); });
+  document.getElementById("sunriseTime").textContent = fmt(times.sunrise);
+  document.getElementById("arcFajr").textContent = fmt(times.fajr);
+  document.getElementById("arcMaghrib").textContent = fmt(times.maghrib);
+  document.getElementById("ramadanIftar").textContent = fmt(times.maghrib);
+
+  /* Dates */
+  document.getElementById("gregorianDate").textContent =
+    new Intl.DateTimeFormat("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"}).format(today);
+
+  var hijriText = "", hijriMonth = null;
+  try {
+    hijriText = new Intl.DateTimeFormat("en-u-ca-islamic", {day:"numeric", month:"long", year:"numeric"}).format(today);
+    var parts = new Intl.DateTimeFormat("en-u-ca-islamic", {month:"numeric"}).formatToParts(today);
+    for (var i = 0; i < parts.length; i++){ if (parts[i].type === "month") hijriMonth = parseInt(parts[i].value, 10); }
+  } catch(e){
+    try { hijriText = new Intl.DateTimeFormat("en-TN-u-ca-islamic", {day:"numeric", month:"long", year:"numeric"}).format(today); } catch(e2){ hijriText = ""; }
+  }
+  document.getElementById("hijriDate").innerHTML = hijriText ? ("🌙 <strong>Hijri:</strong>&nbsp;" + hijriText) : "Hijri date unavailable";
+  if (hijriMonth === 9) document.getElementById("ramadanBanner").classList.add("show");
+
+  /* Next / current prayer */
+  function computeNext(now){
+    for (var i = 0; i < PRAYERS.length; i++){
+      var t = atTime(now, times[PRAYERS[i].key]);
+      if (t > now) return {prayer:PRAYERS[i], when:t, index:i};
+    }
+    return {prayer:PRAYERS[0], when:atTime(tomorrow, tomorrowTimes.fajr), index:0, tomorrow:true};
+  }
+
+  var arcPath = document.getElementById("sunArcProgress");
+  var arcLen = 0;
+  try { arcLen = arcPath.getTotalLength(); arcPath.style.strokeDasharray = arcLen; } catch(e){ arcLen = 0; }
+  var sunDot = document.getElementById("sunDot");
+  var CX = 170, CY = 165, R = 140;
+
+  function tick(){
+    var now = new Date();
+    var next = computeNext(now);
+    /* Most recent prayer: the one before the next; before Fajr that is yesterday's Isha. */
+    var currentIdx = next.index - 1;
+    if (currentIdx < 0 || next.tomorrow) currentIdx = PRAYERS.length - 1;
+
+    PRAYERS.forEach(function(p, i){
+      rowEls[p.key].classList.toggle("is-next", i === next.index && !next.tomorrow);
+      rowEls[p.key].classList.toggle("is-current", i === currentIdx);
+    });
+    if (next.tomorrow) rowEls.isha.classList.add("is-current");
+
+    document.getElementById("nextName").innerHTML = next.prayer.en + ' <span lang="ar">' + next.prayer.ar + '</span>' + (next.tomorrow ? ' <span style="font-size:.45em;color:#6b7f76">(tomorrow)</span>' : '');
+    document.getElementById("nextTime").textContent = "at " + fmt(next.tomorrow ? tomorrowTimes.fajr : times[next.prayer.key]);
+
+    var diff = Math.max(0, Math.floor((next.when - now) / 1000));
+    document.getElementById("countdown").textContent =
+      pad(Math.floor(diff/3600)) + ":" + pad(Math.floor((diff%3600)/60)) + ":" + pad(diff%60);
+
+    /* Sun arc: Fajr -> Maghrib */
+    var fajrT = atTime(now, times.fajr), magT = atTime(now, times.maghrib);
+    var prog = (now - fajrT) / (magT - fajrT);
+    var clamped = Math.min(1, Math.max(0, prog));
+    if (arcLen) arcPath.style.strokeDashoffset = String(arcLen * (1 - clamped));
+    var ang = Math.PI * (1 - clamped);
+    sunDot.setAttribute("transform", "translate(" + (CX + R * Math.cos(ang)).toFixed(1) + "," + (CY - R * Math.sin(ang)).toFixed(1) + ")");
+    document.getElementById("sunProgressText").textContent =
+      prog < 0 ? "The sun has not risen on today's arc yet — Fajr is ahead." :
+      prog > 1 ? "The sun has set — Maghrib has passed, Isha time approaches." :
+      "Daylight progress: " + Math.round(clamped * 100) + "% of the Fajr-to-Maghrib arc complete.";
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
